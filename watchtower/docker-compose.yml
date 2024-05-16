@@ -1,0 +1,24 @@
+services:
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    restart: always
+    networks:
+      - lan
+    environment:
+      - TZ=Europe/Moscow
+      - WATCHTOWER_CLEANUP=true                                        
+      - WATCHTOWER_INCLUDE_RESTARTING=true
+      - WATCHTOWER_POLL_INTERVAL=28800                 
+      #- WATCHTOWER_SCHEDULE=0 0 9 * * *
+      #- WATCHTOWER_DEBUG=true
+      - WATCHTOWER_NOTIFICATIONS=shoutrrr gotify
+      - WATCHTOWER_NOTIFICATION_GOTIFY_URL=http://push.domen.ru/
+      - WATCHTOWER_NOTIFICATION_GOTIFY_TOKEN=token
+      - WATCHTOWER_NOTIFICATION_URL=telegram://0000000000:AAAaBBbbCCccCdDdDFFfFggGgGPpPPzZzz@telegram/?channels=0000000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      
+networks:
+  lan:
+    external: true
