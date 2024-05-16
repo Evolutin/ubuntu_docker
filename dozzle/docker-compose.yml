@@ -1,0 +1,29 @@
+services:
+  dozzle:
+    container_name: dozzle
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      DOZZLE_USERNAME: login
+      DOZZLE_PASSWORD: password
+    networks:
+      - lan
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dozzle.entrypoints=http"
+      - "traefik.http.routers.dozzle.rule=Host(`log.domen.ru`)" # изменить
+      - "traefik.http.middlewares.dozzle-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.dozzle.middlewares=dozzle-https-redirect"
+      - "traefik.http.routers.dozzle-secure.entrypoints=https"
+      - "traefik.http.routers.dozzle-secure.rule=Host(`log.domen.ru`)" # изменить
+      - "traefik.http.routers.dozzle-secure.tls=true"
+      - "traefik.http.routers.dozzle-secure.service=dozzle"
+      - "traefik.http.services.dozzle.loadbalancer.server.port=80"
+      - "traefik.docker.network=lan"
+      
+networks:
+  lan:
+    external: true
