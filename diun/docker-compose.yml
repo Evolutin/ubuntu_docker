@@ -1,0 +1,32 @@
+services:
+  diun:
+    image: crazymax/diun:latest
+    container_name: diun
+    restart: always
+    command: serve
+    networks:
+      - lan
+    volumes:
+      - "./data:/data"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      - "TZ=Europe/Moscow"
+      - "LOG_LEVEL=info"
+      - "DIUN_WATCH_WORKERS=20"
+      - "DIUN_WATCH_SCHEDULE=0 */6 * * *"
+      - "DIUN_WATCH_JITTER=30s"
+      - "DIUN_WATCH_RUNONSTARTUP=true"
+      - "DIUN_PROVIDERS_DOCKER=true"
+      - "DIUN_PROVIDERS_DOCKER_WATCHBYDEFAULT=true"
+      - "DIUN_NOTIF_TELEGRAM_TOKEN=0000000000:AAAaBBbbCCccCdDdDFFfFggGgGPpPPzZzz" # заменить
+      - "DIUN_NOTIF_TELEGRAM_chatIDs=0000000" # заменить
+      - "DIUN_NOTIF_GOTIFY_ENDPOINT=https://push.gotify.ru" # заменить
+      - "DIUN_NOTIF_GOTIFY_TOKEN=token" # заменить
+      - "DIUN_NOTIF_GOTIFY_PRIORITY=9"
+      - "DIUN_NOTIF_GOTIFY_TIMEOUT=10s"
+
+    labels:
+      - "diun.enable=true"
+networks:
+  lan:
+    external: true
