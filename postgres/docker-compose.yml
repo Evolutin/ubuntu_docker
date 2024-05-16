@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    networks:
+       lan:
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    security_opt:
+      - no-new-privileges:true
+      
+networks:
+  lan:
+    external: true
