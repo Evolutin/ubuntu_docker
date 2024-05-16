@@ -1,0 +1,44 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    volumes:
+      - ./redmine/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: kH7R4YEd8
+      MYSQL_DATABASE: redmine
+    networks:
+      - lan
+      
+  redmine:
+    image: docker.io/redmine:latest
+    container_name: redmine
+    restart: unless-stopped
+    depends_on:
+      - db
+    volumes:
+      - ./redmine/data:/home/redmine/data
+      - ./redmine/logs:/var/log/redmine
+    networks:
+      - lan
+    environment:
+      REDMINE_DB_MYSQL: db
+      REDMINE_DB_PASSWORD: kH7R4YEd8
+      REDMINE_SECRET_KEY_BASE: EP4mHq0Ir1HNeNg
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.redmine.entrypoints=http"
+      - "traefik.http.routers.redmine.rule=Host(`redmine.domen.ru`)" # изменить
+      - "traefik.http.middlewares.redmine-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.redmine.middlewares=redmine-https-redirect"
+      - "traefik.http.routers.redmine-secure.entrypoints=https"
+      - "traefik.http.routers.redmine-secure.rule=Host(`redmine.domen.ru`)" # изменить
+      - "traefik.http.routers.redmine-secure.tls=true"
+      - "traefik.http.routers.redmine-secure.service=redmine"
+      - "traefik.http.services.redmine.loadbalancer.server.port=3000"
+      - "traefik.docker.network=lan"
+      
+networks:
+  lan:
+    external: true
