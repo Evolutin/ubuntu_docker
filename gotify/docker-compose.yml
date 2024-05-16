@@ -1,0 +1,32 @@
+services:
+  gotify:
+    image: gotify/server:latest
+    container_name: gotify
+    hostname: push.domen.ru
+    restart: unless-stopped
+    networks:
+      - lan
+    volumes:
+      - ./gotify_data:/app/data
+    environment:
+      TZ: Europe/Moscow
+      GOTIFY_DEFAULTUSER_PASS: 'password'
+      GOTIFY_REGISTRATION: 'false'
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gotify.entrypoints=http"
+      - "traefik.http.routers.gotify.rule=Host(`push.domen.ru`)" # изменить
+      - "traefik.http.middlewares.gotify-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.gotify.middlewares=gotify-https-redirect"
+      - "traefik.http.routers.gotify-secure.entrypoints=https"
+      - "traefik.http.routers.gotify-secure.rule=Host(`push.domen.ru`)" # изменить
+      - "traefik.http.routers.gotify-secure.tls=true"
+      - "traefik.http.routers.gotify-secure.service=gotify"
+      - "traefik.http.services.gotify.loadbalancer.server.port=80"
+      - "traefik.docker.network=lan"
+      
+networks:
+  lan:
+    external: true
