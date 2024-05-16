@@ -1,0 +1,37 @@
+services:
+  owncloud:
+    image: owncloud/server:latest
+    container_name: owncloud
+    restart: unless-stopped
+    volumes:
+      - ./files:/mnt/data
+    environment:
+      - OWNCLOUD_DOMAIN=cloud.domen.ru
+      - OWNCLOUD_TRUSTED_DOMAINS=cloud.domen.ru 
+      - OWNCLOUD_DB_TYPE=mysql
+      - OWNCLOUD_DB_NAME=owncloud
+      - OWNCLOUD_DB_USERNAME=owncloud
+      - OWNCLOUD_DB_PASSWORD=owncloud
+      - OWNCLOUD_DB_HOST=mariadb
+      - OWNCLOUD_ADMIN_USERNAME=admin
+      - OWNCLOUD_ADMIN_PASSWORD=admin
+    networks:
+       lan:
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.owncloud.entrypoints=http"
+      - "traefik.http.routers.owncloud.rule=Host(`cloud.domen.ru`)" # изменить
+      - "traefik.http.middlewares.owncloud-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.owncloud.middlewares=owncloud-https-redirect"
+      - "traefik.http.routers.owncloud-secure.entrypoints=https"
+      - "traefik.http.routers.owncloud-secure.rule=Host(`cloud.domen.ru`)" # изменить
+      - "traefik.http.routers.owncloud-secure.tls=true"
+      - "traefik.http.routers.owncloud-secure.service=owncloud"
+      - "traefik.http.services.owncloud.loadbalancer.server.port=8080"
+      - "traefik.docker.network=lan"
+      
+networks:
+  lan:
+      external: true
