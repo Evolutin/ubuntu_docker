@@ -1,0 +1,20 @@
+services:
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    volumes:
+      - ./redis.dаta:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - ./logs:/logs
+    environment:
+      - REDIS_PORT=6379
+      - REDIS_DATABASES=5
+    networks:
+       lan:
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  lan:
+      external: true
