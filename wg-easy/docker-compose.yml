@@ -1,0 +1,50 @@
+services:
+  wg-easy:
+    image: ghcr.io/wg-easy/wg-easy:latest
+    container_name: wg-easy
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - LANG=ru
+      - WG_HOST=ip
+      - PASSWORD=password
+      - PORT=51821
+      - WG_PORT=51820
+      - WG_DEFAULT_ADDRESS=10.20.30.x
+      - WG_DEFAULT_ADDRESS_RANGE=24
+      - WG_DEFAULT_DNS=1.1.1.1, 8.8.8.8
+      - WG_MTU=1420
+      - WG_ALLOWED_IPS=0.0.0.0/0, ::/0
+      - WG_PERSISTENT_KEEPALIVE=25
+      - UI_TRAFFIC_STATS=true
+      - UI_CHART_TYPE=1
+    volumes:
+      - ./config:/etc/wireguard
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      - lan
+    ports:
+      - "51820:51820/udp"
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.wg-easy.entrypoints=http"
+      - "traefik.http.routers.wg-easy.rule=Host(`vpn.domen.ru`)" # изменить
+      - "traefik.http.middlewares.wg-easy-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.wg-easy.middlewares=wg-easy-https-redirect"
+      - "traefik.http.routers.wg-easy-secure.entrypoints=https"
+      - "traefik.http.routers.wg-easy-secure.rule=Host(`vpn.domen.ru`)" # изменить
+      - "traefik.http.routers.wg-easy-secure.tls=true"
+      - "traefik.http.routers.wg-easy-secure.service=wg-easy"
+      - "traefik.http.services.wg-easy.loadbalancer.server.port=51821"
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.docker.network=lan"
+      
+networks:
+  lan:
+    external: true
