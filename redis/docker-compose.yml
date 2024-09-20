@@ -8,8 +8,11 @@ services:
       - ./redis.conf:/usr/local/etc/redis/redis.conf
       - ./logs:/logs
     environment:
+      - REDIS_PASSWORD=redis
       - REDIS_PORT=6379
       - REDIS_DATABASES=5
+    ports:
+      - "6379:6379"
     networks:
        lan:
     security_opt:
