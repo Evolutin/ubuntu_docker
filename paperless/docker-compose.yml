@@ -1,0 +1,42 @@
+services:
+  paperless:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless
+    restart: unless-stopped
+    volumes:
+      - ./data:/usr/src/paperless/data
+      - ./media:/usr/src/paperless/media
+      - ./export:/usr/src/paperless/export
+      - ./consume:/usr/src/paperless/consume
+    environment:
+      PAPERLESS_TIME_ZONE: Europe/Moscow
+      PAPERLESS_ADMIN_USER: admin
+      PAPERLESS_ADMIN_PASSWORD: password
+      PAPERLESS_ADMIN_MAIL: email@mail.ru
+      PAPERLESS_REDIS: redis://redis:6379
+      PAPERLESS_URL: https://chek.domen.ru
+      PAPERLESS_DBENGINE: mariadb
+      PAPERLESS_DBHOST: mariadb
+      PAPERLESS_DBUSER: paperless # only needed if non-default username
+      PAPERLESS_DBPASS: paperless # only needed if non-default password
+      PAPERLESS_DBPORT: 3306
+    networks:
+      - lan
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.paperless.entrypoints=http"
+      - "traefik.http.routers.paperless.rule=Host(`chek.domen.ru`)"
+      - "traefik.http.middlewares.paperless-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.paperless.middlewares=paperless-https-redirect"
+      - "traefik.http.routers.paperless-secure.entrypoints=https"
+      - "traefik.http.routers.paperless-secure.rule=Host(`chek.domen.ru`)"
+      - "traefik.http.routers.paperless-secure.tls=true"
+      - "traefik.http.routers.paperless-secure.service=paperless"
+      - "traefik.http.services.paperless.loadbalancer.server.port=8000"
+      - "traefik.docker.network=lan"
+
+networks:
+  lan:
+    external: true
